@@ -10,11 +10,13 @@ import pickle
 # output an excel
 def arrays_write_to_excel(eps, evaluate_glse, evaluate_uniform1, evaluate_uniform2, size_glsek, evaluate_time_glse, construction_glse, k):
     l = []
-    for v in [eps, evaluate_glse, evaluate_uniform1, evaluate_uniform2, size_glsek, evaluate_time_glse, construction_glse]:
-        l.append(v)
+    for i in range(len(eps)):
+        l.append([eps[i], evaluate_glse[i][0], evaluate_uniform1[i][0], evaluate_uniform2[i][0], evaluate_glse[i][1], evaluate_uniform1[i][1],
+                  evaluate_uniform2[i][1], evaluate_glse[i][2], evaluate_uniform1[i][2], evaluate_uniform2[i][2], size_glsek[i], evaluate_time_glse[i],
+                  construction_glse[i]])
 
-    arr = np.asarray(l).transpose()
-    df = pd.DataFrame(arr, columns=['eps',  'emp_c', 'emp_u1', 'emp_u2', 'size', 'T_S/T_X', 'T_C/T_X'])
+    arr = np.asarray(l)
+    df = pd.DataFrame(arr, columns=['eps', 'max emp_c', 'max emp_u1', 'max emp_u2', 'avg emp_c', 'avg emp_u1', 'avg emp_u2', 'std emp_c', 'std emp_u1', 'std emp_u2', 'size', 'T_S/T_X', 'T_C/T_X'])
     df.to_csv('result_'+str(k)+'.csv')
     return df
 

@@ -43,7 +43,7 @@ def generate_panel(N,T,k,q,d,lam):
     cluster = np.random.randint(0,k,N)
     for i in range(N):
         temp = np.random.multivariate_normal(mean, cov, 1)[0]
-        temp = temp/np.sqrt(square_sum(temp))*np.random.uniform(cluster[i],cluster[i]+1)
+        temp = temp/np.sqrt(square_sum(temp))*np.random.uniform(0,5)
         mean_individual.append(temp)
     #for i in range(N):
     #    l2 = square_sum(mean_individual[i])
