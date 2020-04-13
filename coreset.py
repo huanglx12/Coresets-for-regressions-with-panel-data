@@ -97,7 +97,7 @@ def sen_glse(panel,q,lam):
         index = min(time, q)
         for j in range(index):
             temp += seno[i - j - 1]
-        # temp = 2 * temp / lam
+        temp = 2 * temp / lam
         sen[i] = min(1, temp)
     
     return sen
@@ -109,14 +109,16 @@ def coreset_glse(sen,nt_sample):
     # total sensitivity
     total_sen = sum(sen)
     # sampling distribution
-    pr = [0 for i in range(size)]
+    pr = [0.0 for i in range(size)]
     for i in range(size):
         pr[i] = sen[i]/total_sen
 
+    print(np.max(pr)/np.min(pr))
+
+
     # importance sampling
-    id_list = [i for i in range(size)]
     weight = [0 for i in range(size)]
-    sample = np.random.choice(id_list, size=nt_sample, p=pr)
+    sample = np.random.choice(size, size=nt_sample, p=pr)
     for i in range(nt_sample):
         weight[sample[i]] += 1/(pr[sample[i]]*nt_sample)
 
@@ -125,9 +127,6 @@ def coreset_glse(sen,nt_sample):
     for i in range(size):
         if weight[i] > 0:
             coreset.append([i,weight[i]])
-            #T_id = i % T
-            #N_id = int((i-T_id)/T)
-            #coreset.append([N_id,T_id,weight[i]])
     return coreset
 
 ############################################################
@@ -156,12 +155,17 @@ def coreset_glsek(panel,q,lam,n_sample,t_sample):
         seno[i] = U[i]/low_temp
 
     # sensitivity function for glsek
-    sen = [min(1,seno[i]) for i in range(N)]
-    print(np.max(sen), np.min(sen))
+    sen = [0 for i in range(N)]
+    for i in range(N):
+        sen[i] = min(1,seno[i])
+    # for i in range(N):
+    #     temp = seno[i]
+    #     temp = 2 * (q+1) * temp / lam
+    #     sen[i] = min(1, temp)
 
     # sample individuals
     I_S = coreset_glse(sen,n_sample)
-    sen_time = []
+    # sen_time = []
     # totalsen_time = []
     # for i in range(len(I_S)):
     #     sen_time.append(sen_glse(Z[I_S[i][0]],q,lam))
@@ -175,7 +179,7 @@ def coreset_glsek(panel,q,lam,n_sample,t_sample):
     for i in range(len(I_S)):
         id = I_S[i]
         coreset.append([id[0]])
-        coreset_time = coreset_glse(sen_glse(Z[id[0]],q,lam), t_sample)
+        coreset_time = coreset_glse(sen_glse(Z[id[0]],q,lam),t_sample)
         for t in range(len(coreset_time)):
             coreset[i].append([coreset_time[t][0],float(id[1]*coreset_time[t][1])])
 

@@ -29,6 +29,7 @@ def generate_cov(T,rho):
 def generate_panel(N,T,k,q,d,lam):
     beta = []
     rho = []
+    cov_rho = []
     for l in range(k):
         beta.append(generate_beta(d-1))
         temp_rho = generate_rho(q,lam)
@@ -40,7 +41,6 @@ def generate_panel(N,T,k,q,d,lam):
 
     # mean vector of each individual
     mean_individual = []
-    cluster = np.random.randint(0,k,N)
     for i in range(N):
         temp = np.random.multivariate_normal(mean, cov, 1)[0]
         temp = temp/np.sqrt(square_sum(temp))*np.random.uniform(0,5)
@@ -51,6 +51,7 @@ def generate_panel(N,T,k,q,d,lam):
     #    for dim in range(d-1):
     #        mean_individual[i][dim] *= math.sqrt(norm / l2)
     # model of each individual
+    cluster = np.random.randint(0,k,N)
     mean_error = [0 for i in range(T)]
     for i in range(N):
         mean_i = np.random.multivariate_normal(mean_individual[i], cov*square_sum(mean_individual[i]), T)
