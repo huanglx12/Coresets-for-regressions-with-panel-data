@@ -18,15 +18,15 @@ def evaluate_glse(panel,q,lam,times):
         BETA.append(generate_beta(d - 1))
         RHO.append(generate_rho(q,lam))
 
-    construction_glse = []
-    construction_start = [0 for i in range(len(eps))]
-    size_glse = []
     evaluate_glse = []
-    evaluate_start = [[0 for i in range(times)] for j in range(len(eps))]
-    all_start = [[0 for i in range(times)] for j in range(len(eps))]
     evaluate_uniform1 = []
     evaluate_uniform2 = []
+    size_glse = []
     evaluate_time_glse = []
+    construction_glse = []
+    construction_start = [0 for i in range(len(eps))]
+    evaluate_start = [[0 for i in range(times)] for j in range(len(eps))]
+    all_start = [[0 for i in range(times)] for j in range(len(eps))]
     for e in range(len(eps)):
         print(e)
         nt_sample = int(q * (d-1)*(d-1)/eps[e]/eps[e])
@@ -38,9 +38,9 @@ def evaluate_glse(panel,q,lam,times):
         sample = int(math.sqrt(nt_sample))
         u2_glse = coreset_nt_and_divide(T,uniform_2(N,T,sample,sample),1)
 
-        temp_evaluate_glse = 0
-        temp_evaluate_uniform1 = 0
-        temp_evaluate_uniform2 = 0
+        temp_evaluate_glse = []
+        temp_evaluate_uniform1 = []
+        temp_evaluate_uniform2 = []
         time_all = 0
         time_glse = 0
         for i in range(times):
@@ -59,15 +59,14 @@ def evaluate_glse(panel,q,lam,times):
             error_uniform1 = abs(uniform1-all)/all
             error_uniform2 = abs(uniform2 - all) / all
 
-            if error_glse > temp_evaluate_glse:
-                temp_evaluate_glse = error_glse
-            if error_uniform1 > temp_evaluate_uniform1:
-                temp_evaluate_uniform1 = error_uniform1
-            if error_uniform2 > temp_evaluate_uniform2:
-                temp_evaluate_uniform2 = error_uniform2
-        evaluate_glse.append(temp_evaluate_glse)
-        evaluate_uniform1.append(temp_evaluate_uniform1)
-        evaluate_uniform2.append(temp_evaluate_uniform2)
+            temp_evaluate_glse.append(error_glse)
+            temp_evaluate_uniform1.append(error_uniform1)
+            temp_evaluate_uniform2.append(error_uniform2)
+
+        evaluate_glse.append([np.max(temp_evaluate_glse), np.mean(temp_evaluate_glse), np.std(temp_evaluate_glse)])
+        evaluate_uniform1.append([np.max(temp_evaluate_uniform1), np.mean(temp_evaluate_uniform1), np.std(temp_evaluate_uniform1)])
+        evaluate_uniform2.append([np.max(temp_evaluate_uniform2), np.mean(temp_evaluate_uniform2), np.std(temp_evaluate_uniform2)])
+
         evaluate_time_glse.append(time_glse/time_all)
         construction_glse[e] /= time_all/times
 
@@ -91,15 +90,15 @@ def evaluate_glsek(panel,k,q,lam,times):
             BETA[i].append(generate_beta(d - 1))
             RHO[i].append(generate_rho(q,lam))
 
-    construction_glsek = []
-    construction_start = [0 for i in range(len(eps))]
-    size_glsek = []
     evaluate_glsek = []
-    evaluate_start = [[0 for i in range(times)] for j in range(len(eps))]
-    all_start = [[0 for i in range(times)] for j in range(len(eps))]
     evaluate_uniform1 = []
     evaluate_uniform2 = []
+    size_glsek = []
     evaluate_time_glsek = []
+    construction_glsek = []
+    construction_start = [0 for i in range(len(eps))]
+    evaluate_start = [[0 for i in range(times)] for j in range(len(eps))]
+    all_start = [[0 for i in range(times)] for j in range(len(eps))]
 
     for e in range(len(eps)):
         print(e)
@@ -115,10 +114,9 @@ def evaluate_glsek(panel,k,q,lam,times):
         u1_glsek = coreset_nt_and_divide(T,uniform_1(N*T, n_sample*t_sample),0)
         u2_glsek = uniform_2(N, T, n_sample, t_sample)
 
-        temp_evaluate_glsek = 0
-        temp_evaluate_uniform1 = 0
-        temp_evaluate_uniform2 = 0
-        temp_evaluate_time_glsek = 0
+        temp_evaluate_glsek = []
+        temp_evaluate_uniform1 = []
+        temp_evaluate_uniform2 = []
         time_all = 0
         time_glsek = 0
         for i in range(times):
@@ -142,16 +140,14 @@ def evaluate_glsek(panel,k,q,lam,times):
             error_uniform1 = abs(uniform1-all)/all
             error_uniform2 = abs(uniform2-all)/all
 
-            if error_glsek > temp_evaluate_glsek:
-                temp_evaluate_glsek = error_glsek
-            if error_uniform1 > temp_evaluate_uniform1:
-                temp_evaluate_uniform1 = error_uniform1
-            if error_uniform2 > temp_evaluate_uniform2:
-                temp_evaluate_uniform2 = error_uniform2
-            temp_evaluate_time_glsek += time_glsek/time_all
-        evaluate_glsek.append(temp_evaluate_glsek)
-        evaluate_uniform1.append(temp_evaluate_uniform1)
-        evaluate_uniform2.append(temp_evaluate_uniform2)
+            temp_evaluate_glsek.append(error_glsek)
+            temp_evaluate_uniform1.append(error_uniform1)
+            temp_evaluate_uniform2.append(error_uniform2)
+
+        evaluate_glsek.append([np.max(temp_evaluate_glsek), np.mean(temp_evaluate_glsek), np.std(temp_evaluate_glsek)])
+        evaluate_uniform1.append([np.max(temp_evaluate_uniform1), np.mean(temp_evaluate_uniform1), np.std(temp_evaluate_uniform1)])
+        evaluate_uniform2.append([np.max(temp_evaluate_uniform2), np.mean(temp_evaluate_uniform2), np.std(temp_evaluate_uniform2)])
+
         evaluate_time_glsek.append(time_glsek/time_all)
         construction_glsek[e] = float(construction_glsek[e]*times/time_all)
 
@@ -159,15 +155,3 @@ def evaluate_glsek(panel,k,q,lam,times):
 
 
 #############################################
-#if __name__ == "__main__":
-#    N = 1000
-#    T = 1000
-#    d = 5
-#    k = 3
-#    q = 1
-#    lam = 0.1
-#    times = 10
-#    start = time.time()
-#    print(evaluate_glse(generate_panel(N,T,1,q,d),q,lam,times))
-#    print(evaluate_glsek(generate_panel(N, T, k, q, d), k, q,lam,times))
-#    print(time.time()-start)
