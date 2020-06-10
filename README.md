@@ -1,4 +1,17 @@
-# Coresets-for-regressions-with-panel-data
-Command: python main.py
+############################
+Environment: python 3.7
 
-Output: 1) for GLSE, generate data file "panel" and metric file "result_1.csv"; 2) for GLSE$_k$, generate data file "panelk" and metric file "result_k.csv" (default k=3).
+############################
+# Command
+
+python main_realworld.py/main_synthetic.py int(times)
+
+a) python main_realworld.py 100
+Input: realworld.npy (realworld dataset)
+Output: result_realworld_1.csv
+
+b) python main_synthetic.py 100
+Output: panel (synthetic dataset), result_synthetic_1.csv
+
+############################
+

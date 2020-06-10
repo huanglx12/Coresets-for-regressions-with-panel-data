@@ -2,7 +2,7 @@ import time
 from l2_regression import *
 from coreset import *
 from generate import *
-
+from optimization import *
 
 #############################################
 # evaluate the empirical error for coreset_glse and uniform_1
@@ -20,57 +20,70 @@ def evaluate_glse(panel,q,lam,times):
 
     evaluate_glse = []
     evaluate_uniform1 = []
-    evaluate_uniform2 = []
+    # evaluate_uniform2 = []
     size_glse = []
-    evaluate_time_glse = []
-    construction_glse = []
-    construction_start = [0 for i in range(len(eps))]
-    evaluate_start = [[0 for i in range(times)] for j in range(len(eps))]
-    all_start = [[0 for i in range(times)] for j in range(len(eps))]
+    construction_time_glse = [0 for i in range(len(eps))]
+    opt_time_glse = [0 for i in range(len(eps))]
+
+    # opt_uniform1 = []
+    # opt_uniform2 = []
+
+    # compute the optimal regression value on the full dataset
+    start = time.time()
+    beta, rho, value = IRLS_glse(panel, q)
+    print('opt:')
+    opt_time = [time.time()-start for i in range(len(eps))]
+    print('value:', value, 'time:', time.time() - start)
+
     for e in range(len(eps)):
-        print(e)
-        nt_sample = int(q * (d-1)*(d-1)/eps[e]/eps[e])
-        construction_start[e] = time.time()
+        print(eps[e])
+        nt_sample = int(q * (d-1) * (d-1) / eps[e] / eps[e] / eps[e])
+        start = time.time()
         c_glse = coreset_glse(sen_glse(panel, q, lam), nt_sample)
-        construction_glse.append(time.time()-construction_start[e])
-        size_glse.append(len(c_glse))
-        u1_glse = uniform_1(N*T, nt_sample)
-        sample = int(math.sqrt(nt_sample))
-        u2_glse = coreset_nt_and_divide(T,uniform_2(N,T,sample,sample),1)
+        construction_time_glse[e] = time.time()-start
+        size = len(c_glse)
+        size_glse.append(size)
+        u1_glse = uniform_1(N*T, size)
+        # sample = int(math.sqrt(nt_sample))
+        # u2_glse = coreset_nt_and_divide(T,uniform_2(N,T,sample,sample),1)
+
+        # compute the optimal regression value on the coreset
+        start = time.time()
+        beta, rho, value = IRLS_glse_coreset(panel,c_glse,q)
+        print('opt_c:')
+        opt_time_glse[e] = time.time() - start + construction_time_glse[e]
+        print('value:', value, 'time:', time.time() - start + construction_time_glse[e])
+
+        # # compute the optimal regression value on Uni1
+        # start = time.time()
+        # beta, rho, value = IRLS_glse_coreset(panel,u1_glse,q)
+        # print('opt_u1:')
+        # print('value:', value, 'time:', time.time() - start)
 
         temp_evaluate_glse = []
         temp_evaluate_uniform1 = []
-        temp_evaluate_uniform2 = []
-        time_all = 0
-        time_glse = 0
         for i in range(times):
             beta = BETA[i]
             rho = RHO[i]
 
-            all_start[e][i] = time.time()
             all = glse_obj(panel,beta,rho)
-            time_all += time.time()-all_start[e][i]
-            evaluate_start[e][i] = time.time()
             glse = glse_coreset_obj(panel,beta,rho,c_glse)
-            time_glse += time.time()-evaluate_start[e][i]
             uniform1 = glse_coreset_obj(panel,beta,rho,u1_glse)
-            uniform2 = glse_coreset_obj(panel,beta,rho,u2_glse)
+            # uniform2 = glse_coreset_obj(panel,beta,rho,u2_glse)
             error_glse = abs(glse-all)/all
             error_uniform1 = abs(uniform1-all)/all
-            error_uniform2 = abs(uniform2 - all) / all
+            # error_uniform2 = abs(uniform2 - all) / all
 
             temp_evaluate_glse.append(error_glse)
             temp_evaluate_uniform1.append(error_uniform1)
-            temp_evaluate_uniform2.append(error_uniform2)
+            # temp_evaluate_uniform2.append(error_uniform2)
 
         evaluate_glse.append([np.max(temp_evaluate_glse), np.mean(temp_evaluate_glse), np.std(temp_evaluate_glse)])
         evaluate_uniform1.append([np.max(temp_evaluate_uniform1), np.mean(temp_evaluate_uniform1), np.std(temp_evaluate_uniform1)])
-        evaluate_uniform2.append([np.max(temp_evaluate_uniform2), np.mean(temp_evaluate_uniform2), np.std(temp_evaluate_uniform2)])
+        # evaluate_uniform2.append([np.max(temp_evaluate_uniform2), np.mean(temp_evaluate_uniform2), np.std(temp_evaluate_uniform2)])
 
-        evaluate_time_glse.append(time_glse/time_all)
-        construction_glse[e] /= time_all/times
 
-    return eps, evaluate_glse, evaluate_uniform1, evaluate_uniform2, size_glse, evaluate_time_glse, construction_glse
+    return eps, evaluate_glse, evaluate_uniform1, size_glse, construction_time_glse, opt_time_glse, opt_time
 
 
 #############################################
@@ -92,66 +105,63 @@ def evaluate_glsek(panel,k,q,lam,times):
 
     evaluate_glsek = []
     evaluate_uniform1 = []
-    evaluate_uniform2 = []
+    # evaluate_uniform2 = []
     size_glsek = []
-    evaluate_time_glsek = []
-    construction_glsek = []
-    construction_start = [0 for i in range(len(eps))]
-    evaluate_start = [[0 for i in range(times)] for j in range(len(eps))]
-    all_start = [[0 for i in range(times)] for j in range(len(eps))]
+    construction_time_glsek = [0 for i in range(len(eps))]
+    opt_time_glsek = [0 for i in range(len(eps))]
+
+    # opt_uniform1 = []
+    # opt_uniform2 = []
+
+    # compute the optimal regression value on the full dataset
+    start = time.time()
+    beta, rho, value = IRLS_glsek(panel, q, k)
+    print('opt:')
+    opt_time = [time.time() - start for i in range(len(eps))]
+    print('value:', value, 'time:', time.time() - start)
 
     for e in range(len(eps)):
-        print(e)
-        n_sample = int(q * k * (d - 1) / eps[e])
+        print(eps[e])
+        # coreset size for synthetic dataseet
+        n_sample = int(q * k * (d-1) / eps[e])
         t_sample = int(q * (d - 1) / eps[e])
-        construction_start[e] = time.time()
+        # coreset size for real-world dataset
+        # n_sample = int(q * k * (d - 1) / eps[e])
+        # t_sample = int(q * (d - 1) / eps[e])
+        start = time.time()
         c_glsek = coreset_glsek(panel, q, lam, n_sample, t_sample)
-        construction_glsek.append(time.time()-construction_start[e])
+        construction_time_glsek[e] = time.time()-start
         size = 0
         for s in range(len(c_glsek)):
             size += len(c_glsek[s])-1
         size_glsek.append(size)
-        u1_glsek = coreset_nt_and_divide(T,uniform_1(N*T, n_sample*t_sample),0)
-        u2_glsek = uniform_2(N, T, n_sample, t_sample)
+        u1_glsek = coreset_nt_and_divide(T,uniform_1(N*T, size),0)
+        # u2_glsek = uniform_2(N, T, n_sample, t_sample)
+
+        # compute the optimal regression value on the coreset
+        start = time.time()
+        beta, rho, value = IRLS_glsek_coreset(panel, c_glsek, q, k)
+        print('opt_c:')
+        opt_time_glsek[e] = time.time() - start + construction_time_glsek[e]
+        print('value:', value, 'time:', time.time() - start + construction_time_glsek[e])
 
         temp_evaluate_glsek = []
         temp_evaluate_uniform1 = []
-        temp_evaluate_uniform2 = []
-        time_all = 0
-        time_glsek = 0
         for i in range(times):
             beta = BETA[i]
             rho = RHO[i]
-            # beta = []
-            # rho = []
-            # for l in range(k):
-            #     beta.append(generate_beta(d - 1))
-            #     rho.append(generate_rho(q,lam))
-
-            all_start[e][i] = time.time()
             all = glsek_obj(panel,beta,rho)
-            time_all += time.time()-all_start[e][i]
-            evaluate_start[e][i] = time.time()
             glsek = glsek_coreset_obj(panel,beta,rho,c_glsek)
-            time_glsek += time.time()-evaluate_start[e][i]
             uniform1 = glsek_coreset_obj(panel,beta,rho,u1_glsek)
-            uniform2 = glsek_coreset_obj(panel,beta,rho,u2_glsek)
             error_glsek = abs(glsek-all)/all
             error_uniform1 = abs(uniform1-all)/all
-            error_uniform2 = abs(uniform2-all)/all
 
             temp_evaluate_glsek.append(error_glsek)
             temp_evaluate_uniform1.append(error_uniform1)
-            temp_evaluate_uniform2.append(error_uniform2)
 
         evaluate_glsek.append([np.max(temp_evaluate_glsek), np.mean(temp_evaluate_glsek), np.std(temp_evaluate_glsek)])
         evaluate_uniform1.append([np.max(temp_evaluate_uniform1), np.mean(temp_evaluate_uniform1), np.std(temp_evaluate_uniform1)])
-        evaluate_uniform2.append([np.max(temp_evaluate_uniform2), np.mean(temp_evaluate_uniform2), np.std(temp_evaluate_uniform2)])
 
-        evaluate_time_glsek.append(time_glsek/time_all)
-        construction_glsek[e] = float(construction_glsek[e]*times/time_all)
-
-    return eps, evaluate_glsek, evaluate_uniform1, evaluate_uniform2, size_glsek, evaluate_time_glsek, construction_glsek
-
+    return eps, evaluate_glsek, evaluate_uniform1, size_glsek, construction_time_glsek, opt_time_glsek, opt_time
 
 #############################################

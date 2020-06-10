@@ -53,7 +53,7 @@ def glsek_obj(panel,beta,rho):
     return obj
 
 #####################################
-# the objective function of glse on the coreset
+# the objective function of glsek on the coreset
 def glsek_coreset_obj(panel,beta,rho,coreset):
     k = len(rho)
 
