@@ -37,7 +37,7 @@ def evaluate_glse(panel,q,lam,times):
 
     for e in range(len(eps)):
         print(eps[e])
-        nt_sample = int(q * (d-1) * (d-1) / eps[e] / eps[e] / eps[e])
+        nt_sample = int(2 * q * (d-1) * (d-1) / eps[e] / eps[e] / eps[e])
         start = time.time()
         c_glse = coreset_glse(sen_glse(panel, q, lam), nt_sample)
         construction_time_glse[e] = time.time()-start
@@ -54,11 +54,11 @@ def evaluate_glse(panel,q,lam,times):
         opt_time_glse[e] = time.time() - start + construction_time_glse[e]
         print('value:', value, 'time:', time.time() - start + construction_time_glse[e])
 
-        # # compute the optimal regression value on Uni1
-        # start = time.time()
-        # beta, rho, value = IRLS_glse_coreset(panel,u1_glse,q)
-        # print('opt_u1:')
-        # print('value:', value, 'time:', time.time() - start)
+        # compute the optimal regression value on Uni1
+        start = time.time()
+        beta, rho, value = IRLS_glse_coreset(panel,u1_glse,q)
+        print('opt_u1:')
+        print('value:', value, 'time:', time.time() - start)
 
         temp_evaluate_glse = []
         temp_evaluate_uniform1 = []
@@ -78,8 +78,13 @@ def evaluate_glse(panel,q,lam,times):
             temp_evaluate_uniform1.append(error_uniform1)
             # temp_evaluate_uniform2.append(error_uniform2)
 
-        evaluate_glse.append([np.max(temp_evaluate_glse), np.mean(temp_evaluate_glse), np.std(temp_evaluate_glse)])
-        evaluate_uniform1.append([np.max(temp_evaluate_uniform1), np.mean(temp_evaluate_uniform1), np.std(temp_evaluate_uniform1)])
+        evaluate_glse.append(temp_evaluate_glse)
+        evaluate_uniform1.append(temp_evaluate_uniform1)
+        # evaluate_glse.append([np.max(temp_evaluate_glse), np.mean(temp_evaluate_glse), np.std(temp_evaluate_glse), \
+        #                      np.sqrt(np.mean(np.square(temp_evaluate_glse)))])
+        # evaluate_uniform1.append(
+        #    [np.max(temp_evaluate_uniform1), np.mean(temp_evaluate_uniform1), np.std(temp_evaluate_uniform1), \
+        #     np.sqrt(np.mean(np.square(temp_evaluate_uniform1)))])
         # evaluate_uniform2.append([np.max(temp_evaluate_uniform2), np.mean(temp_evaluate_uniform2), np.std(temp_evaluate_uniform2)])
 
 

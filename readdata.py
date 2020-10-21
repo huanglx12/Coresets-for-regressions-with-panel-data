@@ -5,7 +5,7 @@ pd.set_option('display.max_columns', None)
 
 
 #####################################
-# translate Yale_Acct_Info to panel data
+# translate Yale_Acct_Info to panel.npy data
 def translate(df, N, T):
     # date = df['As_of_date'][0:T]
     feature = [	'Age_Cd',	'total_debit_amt',	'se_spend',	'total_remit_amt',
@@ -47,7 +47,7 @@ def translate(df, N, T):
             if symbol == 0:
                 flag = 1
 
-        # record the information of an individual into panel data
+        # record the information of an individual into panel.npy data
         y_mean = np.mean(df['RAM_Amount'][index: index + 55])
         for i in range(index, index + 55):
             for fea in range(len(feature)):
@@ -59,7 +59,7 @@ def translate(df, N, T):
                 # normalization
                 temp -= stat[fea][0]
                 temp /= stat[fea][1] - stat[fea][0]
-                # record into panel data
+                # record into panel.npy data
                 panel[num_individual][i - index][fea] = temp
         index += T
         num_individual += 1
@@ -242,7 +242,7 @@ def clean2(df3,T, sample_N, signal):
             print('df3.stat (after):', df3_stat.shape)
 
 
-    # generate a panel dataset
+    # generate a panel.npy dataset
     N = int(len(df3) / T)
     sample = np.random.choice(range(N), size=sample_N, replace = False)
 
@@ -269,5 +269,5 @@ if __name__ == "__main__":
     temp_df = clean(df,50)
     clean2(temp_df,50,5000, 0)
     # translate(df, 5000, 55)
-    # panel = np.load('panel_Yale_Acct.npy')
-    # print(panel.shape)
+    # panel.npy = np.load('panel_Yale_Acct.npy')
+    # print(panel.npy.shape)

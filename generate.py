@@ -1,6 +1,7 @@
 import random
 import numpy as np
 import math
+from scipy.stats import cauchy
 import time
 import pickle
 
@@ -25,17 +26,18 @@ def generate_cov(T,rho):
     return cov
 
 ##############################################
-# generate panel data
+# generate panel.npy data
 def generate_panel(N,T,k,q,d,lam):
     beta = []
     rho = []
-    cov_rho = []
+    # cov_rho = []
     for l in range(k):
         beta.append(generate_beta(d-1))
         temp_rho = generate_rho(q,lam)
         rho.append(temp_rho)
 
-    panel = np.array([[[1.0 for fea in range(d)] for t in range(T)] for i in range(N)])
+    panel1 = np.array([[[1.0 for fea in range(d)] for t in range(T)] for i in range(N)])
+    panel2 = np.array([[[1.0 for fea in range(d)] for t in range(T)] for i in range(N)])
     mean = [0 for i in range(d-2)]
     cov = np.identity(d-2)
 
@@ -58,14 +60,21 @@ def generate_panel(N,T,k,q,d,lam):
         error_i = []
         error_basic = np.random.normal(0,1,T)
         for t in range(T):
-            temp = error_basic[t]
-            for tt in range(min(t,q)):
-                temp += rho[tt] * error_i[tt]
-            error_i.append(temp)
+            error_i.append(error_basic[t])
+            for tt in range(min(t-1,q)):
+                error_i[t] += rho[cluster[i]][tt] * error_i[t-tt-1]
         for t in range(T):
-            panel[i][t][0:-2] = mean_i[t]
-            panel[i][t][d-1] = np.dot(panel[i][t][0:d-1],beta[cluster[i]]) + error_i[t]
-    return panel
+            panel1[i][t][0:-2] = mean_i[t]
+            panel1[i][t][d-1] = np.dot(panel1[i][t][0:d-1],beta[cluster[i]]) + error_i[t]
+        error_basic = cauchy.rvs(0, 2, T)  # errors drawn from Cauchy distribution with x0 = 0 and gamma = 2
+        for t in range(T):
+            error_i.append(error_basic[t])
+            for tt in range(min(t-1,q)):
+                error_i[t] += rho[cluster[i]][tt] * error_i[t-tt-1]
+        for t in range(T):
+            panel2[i][t][0:-2] = mean_i[t]
+            panel2[i][t][d - 1] = np.dot(panel2[i][t][0:d - 1], beta[cluster[i]]) + error_i[t]
+    return panel1, panel2
 
 ##############################################
 # generate beta
