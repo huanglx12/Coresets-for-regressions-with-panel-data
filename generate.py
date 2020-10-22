@@ -56,6 +56,7 @@ def generate_panel(N,T,k,q,d,lam):
     # model of each individual
     mean_error = [0 for i in range(T)]
     for i in range(N):
+        # Gaussian error
         mean_i = np.random.multivariate_normal(mean_individual[i], cov*square_sum(mean_individual[i]), T)
         error_i = []
         error_basic = np.random.normal(0,1,T)
@@ -66,6 +67,8 @@ def generate_panel(N,T,k,q,d,lam):
         for t in range(T):
             panel1[i][t][0:-2] = mean_i[t]
             panel1[i][t][d-1] = np.dot(panel1[i][t][0:d-1],beta[cluster[i]]) + error_i[t]
+        # Cauchy error
+        error_i = []
         error_basic = cauchy.rvs(0, 2, T)  # errors drawn from Cauchy distribution with x0 = 0 and gamma = 2
         for t in range(T):
             error_i.append(error_basic[t])
